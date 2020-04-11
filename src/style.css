@@ -56,7 +56,7 @@ body {
 
 /*  */
 
-.openTasksContainer {
+.tasksContainer {
   display:flex;
   flex-direction: column;
 }

@@ -44,7 +44,7 @@
 
     <br/>
 
-    <div class="baseContainer openTasksContainer" id="openTasks">
+    <div class="baseContainer tasksContainer" id="openTasks">
           <!-- <div class="taskContainer shadowed">
             <div class='checkboxContainer'>
               <label class="checkbox-inline"><input type="checkbox"></label>
@@ -61,6 +61,24 @@
             </div>
         </div> -->
     </div>
+
+    <div class='sortTasksContainer baseContainer'>
+      <label class='taskGroupLabel'>Done</label>
+      <div class="dropdown">
+        <button class="btn dropdown-toggle " type="button" data-toggle="dropdown" style='border-bottom-color: #E8E8E8; border-bottom-width: 2px;'>
+          Sort by
+        </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="#">Date creation (Asc)</a>
+            <a class="dropdown-item" href="#">Date creation (Asc)</a>
+            <a class="dropdown-item" href="#">Text (Asc)</a>
+            <a class="dropdown-item" href="#">Text (Asc)</a>
+          </div>
+      </div>
+    </div>
+
+    <div class="baseContainer tasksContainer" id="doneTasks"></div>
+</div>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
