@@ -1,3 +1,114 @@
-div {
-  color: blue;
+.shadowed {
+  box-shadow: 0 0 10px 5px rgba(221, 221, 221, 1);
+}
+
+body {
+  width: 40%;
+  margin: 0 auto;
+}
+
+.baseContainer {
+  width: 60%;
+  margin: 0 auto;
+}
+
+/*  */
+
+.transparentInput {
+  border: 0;
+  outline: 0;
+  background: transparent;
+}
+
+#search::placeholder {
+  color: white;
+  font-size: 80%;
+}
+
+#submitBtn {
+  background: transparent; 
+  color: white;
+  border: none;
+}
+
+/*  */
+
+.addNewTaskContainer {
+  display: flex;
+  justify-content: space-around;
+}
+
+#addTask {
+  width: 70%;
+}
+
+.sortTasksContainer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.taskGroupLabel {
+  display: flex;
+  align-items: center;
+  color: black;
+  margin: 0;
+}
+
+/*  */
+
+.openTasksContainer {
+  display:flex;
+  flex-direction: column;
+}
+
+.taskContainer {
+  display: flex;
+  min-height: 65px;
+  max-height: 100px;
+  margin-bottom: 15px;
+  border-radius: 15px;
+}
+
+.checkboxContainer {
+  width: 10%;
+  text-align: center;
+  /* border: 1px solid black; */
+}
+
+.checkbox-inline {
+  margin-top: 40%;
+}
+
+.inputContainer {
+  width: 55%;
+  /* border: 1px solid black; */
+  /* position: relative; */
+  display:inline-block;
+  overflow: auto;
+}
+
+.inputPosition {
+  /* position: absolute; */
+  margin-top: 17px;
+  width: 100%;
+}
+
+.timeIntervalsContainer {
+  /* border: 1px solid black; */
+  width: 15%;
+  margin-left: auto;
+  text-align: center;
+}
+
+.removeRecordContainer {
+  width: 10%;
+  display: flex;
+  justify-content: center;
+  font-size: 140%;
+  border-left: 2px solid gray;
+}
+
+.removeRecord {
+  border: none;
+  margin: 4px;
 }

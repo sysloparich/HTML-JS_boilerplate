@@ -3,8 +3,67 @@
     <title>HTML + JS boilerplate project</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   </head>
-  <body>
-    <div>Hello, world</div>
+  <body class='shadowed'>
+    <nav class="navbar navbar-dark bg-primary">
+      <span class="navbar-text" style='color: white;'>
+        Todo List
+      </span>
+
+      <div class='searchBoxClass'>
+        <input id='search' class='transparentInput' placeHolder='Search...' style='color: white;'></input>
+        <button id='submitBtn'><i class="fa fa-search"></i></button>
+        <hr color='white' style='margin: 0;'/>
+      </div>
+    </nav>
+
+    <div class='addNewTaskContainer baseContainer'>
+      <input id='addTask' class='transparentInput' placeHolder='New task...'></input>
+      <button id='addBtn'>Add</button>
+    </div>
+
+    <br/>
+  
+    <div class='sortTasksContainer baseContainer'>
+      <label class='taskGroupLabel'>Open</label>
+      <div class="dropdown">
+        <button class="btn dropdown-toggle " type="button" data-toggle="dropdown" style='border-bottom-color: #E8E8E8; border-bottom-width: 2px;'>
+          Sort by
+        </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="#">Date creation (Asc)</a>
+            <a class="dropdown-item" href="#">Date creation (Asc)</a>
+            <a class="dropdown-item" href="#">Text (Asc)</a>
+            <a class="dropdown-item" href="#">Text (Asc)</a>
+          </div>
+      </div>
+    </div>
+
+    <br/>
+
+    <div class="baseContainer openTasksContainer" id="openTasks">
+          <!-- <div class="taskContainer shadowed">
+            <div class='checkboxContainer'>
+              <label class="checkbox-inline"><input type="checkbox"></label>
+            </div>
+            <div class="inputContainer">
+              <input id='recordInput' class='inputPosition transparentInput' placeHolder='Enter the record...'></input>
+            </div>
+            <div class='timeIntervalsContainer'>
+              lalala
+              lalala
+            </div>
+            <div class='removeRecordContainer'>
+              <button class='fa fa-trash removeRecord'></button>
+            </div>
+        </div> -->
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
   </body>
 </html>
