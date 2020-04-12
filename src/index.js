@@ -2,7 +2,7 @@ import './style.css';
 import moment from 'moment';
 
 let map = new Map();
-setupDropdowns();
+setup();
 restore();
 
 function removeChilden(element) {
@@ -11,7 +11,7 @@ function removeChilden(element) {
   }
 }
 
-function setupDropdowns() {
+function setup() {
   map.set('Date creation (Asc)', { asc: true, param: 'creationDate' });
   map.set('Date creation (Desc)', { asc: false, param: 'creationDate' });
   map.set('Due date (Asc)', { asc: true, param: 'endDate' });
@@ -22,6 +22,8 @@ function setupDropdowns() {
   document
     .querySelectorAll('.dropdown-menu')
     .forEach(drop => drop.addEventListener('click', sort));
+
+  search.addEventListener('keyup', searchRecords);
 }
 
 function getRecordsFromStorage(list) {
@@ -44,6 +46,47 @@ function escPressed(code) {
 
 function enterPressed(code) {
   return code === 13;
+}
+
+function searchRecords(event) {
+  let text = event.target.value;
+  // if (!text) {
+  //   Array.from(doneTasks.children).forEach(task => (task.style.display = null));
+  //   Array.from(openTasks.children).forEach(task => (task.style.display = null));
+  //   return;
+  // }
+
+  Array.from(openTasks.children).forEach(task =>
+    manipulateTaskDisplay(text, task),
+  );
+  Array.from(doneTasks.children).forEach(task =>
+    manipulateTaskDisplay(text, task),
+  );
+}
+
+function manipulateTaskDisplay(text, task) {
+  let span = task.querySelector('span');
+  let txt = span.originalText;
+
+  if (txt.includes(text)) {
+    if (task.style.display === 'none') task.style.display = null;
+
+    span.innerHTML = txt
+      .split(' ')
+      .map(str => {
+        if (str.includes(text)) {
+          let idx = str.indexOf(text);
+          let substr = str.substring(idx, text.length);
+          let boldPart = '<b>' + substr + '</b>';
+          str = str.replace(substr, boldPart);
+        }
+        return str;
+      })
+      .join(' ');
+  } else {
+    span.innerHTML = span.originalText;
+    task.style.display = 'none';
+  }
 }
 
 function sort(event) {
@@ -138,6 +181,7 @@ function endOfInput(event) {
 
   if (event.keyCode === 13) {
     span.innerHTML = event.target.value;
+    span.originalText = event.target.value;
     let tasksChoosed = task.closest('.baseContainer');
     let storage =
       tasksChoosed.id === 'openTasks' ? 'openRecords' : 'doneRecords';
@@ -236,6 +280,7 @@ function drawRecord(record) {
   textContainer.classList.add('inputPosition');
   span.style.setProperty('word-wrap', 'break-word');
   span.innerHTML = record.text;
+  span.originalText = record.text;
   textContainer.appendChild(span);
   textContainer.addEventListener('dblclick', changeText);
   inputContainer.appendChild(textContainer);
