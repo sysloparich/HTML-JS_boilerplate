@@ -3,7 +3,7 @@
 }
 
 body {
-  width: 40%;
+  width: 45%;
   margin: 0 auto;
 }
 
@@ -89,13 +89,13 @@ body {
 
 .inputPosition {
   /* position: absolute; */
-  margin-top: 17px;
+  margin-top: 22px;
   width: 100%;
 }
 
 .timeIntervalsContainer {
   /* border: 1px solid black; */
-  width: 15%;
+  width: 20%;
   margin-left: auto;
   text-align: center;
 }

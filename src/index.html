@@ -20,6 +20,8 @@
       </div>
     </nav>
 
+    <br/>
+
     <div class='addNewTaskContainer baseContainer'>
       <input id='addTask' class='transparentInput' placeHolder='New task...'></input>
       <button id='addBtn'>Add</button>
@@ -29,15 +31,15 @@
   
     <div class='sortTasksContainer baseContainer'>
       <label class='taskGroupLabel'>Open</label>
-      <div class="dropdown">
-        <button class="btn dropdown-toggle " type="button" data-toggle="dropdown" style='border-bottom-color: #E8E8E8; border-bottom-width: 2px;'>
+      <div class="dropdown dropright">
+        <button class="btn dropdown-toggle " type="button" id="sortOpenButton" data-toggle="dropdown" style='border-bottom-color: #E8E8E8; border-bottom-width: 2px;'>
           Sort by
-        </button>
+        </button aria-labelledby="sortOpenButton">
           <div class="dropdown-menu">
             <a class="dropdown-item" href="#">Date creation (Asc)</a>
-            <a class="dropdown-item" href="#">Date creation (Asc)</a>
+            <a class="dropdown-item" href="#">Date creation (Desc)</a>
             <a class="dropdown-item" href="#">Text (Asc)</a>
-            <a class="dropdown-item" href="#">Text (Asc)</a>
+            <a class="dropdown-item" href="#">Text (Desc)</a>
           </div>
       </div>
     </div>
@@ -64,16 +66,16 @@
 
     <div class='sortTasksContainer baseContainer'>
       <label class='taskGroupLabel'>Done</label>
-      <div class="dropdown">
-        <button class="btn dropdown-toggle " type="button" data-toggle="dropdown" style='border-bottom-color: #E8E8E8; border-bottom-width: 2px;'>
+      <div class="dropdown dropright">
+        <button class="btn dropdown-toggle " type="button" id="sortDoneButton" data-toggle="dropdown" style='border-bottom-color: #E8E8E8; border-bottom-width: 2px;'>
           Sort by
         </button>
-          <div class="dropdown-menu">
-            <a class="dropdown-item" href="#">Date creation (Asc)</a>
-            <a class="dropdown-item" href="#">Date creation (Asc)</a>
-            <a class="dropdown-item" href="#">Text (Asc)</a>
-            <a class="dropdown-item" href="#">Text (Asc)</a>
-          </div>
+        <div class="dropdown-menu" aria-labelledby="sortDoneButton">
+          <a class="dropdown-item" href="#">Due date (Asc)</a>
+          <a class="dropdown-item" href="#">Due date (Desc)</a>
+          <a class="dropdown-item" href="#">Text (Asc)</a>
+          <a class="dropdown-item" href="#">Text (Desc)</a>
+        </div>
       </div>
     </div>
 

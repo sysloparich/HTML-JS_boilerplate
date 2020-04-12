@@ -1,7 +1,28 @@
 import './style.css';
 import moment from 'moment';
 
+let map = new Map();
+setupDropdowns();
 restore();
+
+function removeChilden(element) {
+  while (element.firstChild) {
+    element.removeChild(element.firstChild);
+  }
+}
+
+function setupDropdowns() {
+  map.set('Date creation (Asc)', { asc: true, param: 'creationDate' });
+  map.set('Date creation (Desc)', { asc: false, param: 'creationDate' });
+  map.set('Due date (Asc)', { asc: true, param: 'endDate' });
+  map.set('Due date (Desc)', { asc: false, param: 'endDate' });
+  map.set('Text (Asc)', { asc: true, param: 'text' });
+  map.set('Text (Desc)', { asc: false, param: 'text' });
+
+  document
+    .querySelectorAll('.dropdown-menu')
+    .forEach(drop => drop.addEventListener('click', sort));
+}
 
 function getRecordsFromStorage(list) {
   let records = JSON.parse(localStorage.getItem(list));
@@ -25,6 +46,26 @@ function enterPressed(code) {
   return code === 13;
 }
 
+function sort(event) {
+  let option = event.target.innerHTML;
+  let button = event.target.parentNode.parentNode.querySelector('.btn');
+  button.innerHTML = option;
+  let sortParam = map.get(option).param;
+  let order = map.get(option).asc;
+
+  let storage = button.id === 'sortOpenButton' ? 'openRecords' : 'doneRecords';
+
+  let records = getRecordsFromStorage(storage);
+  records.sort((rec1, rec2) =>
+    rec1[sortParam] > rec2[sortParam] && order ? 1 : -1,
+  );
+  localStorage.setItem(storage, JSON.stringify(records));
+
+  let tasksContainer = button.id === 'sortOpenButton' ? openTasks : doneTasks;
+  removeChilden(tasksContainer);
+  getRecordsFromStorage(storage).forEach(record => drawRecord(record));
+}
+
 function switchLists(event) {
   let checkbox = event.target;
 
@@ -39,8 +80,11 @@ function switchLists(event) {
     let records = getRecordsFromStorage('doneRecords');
     let rec = records.filter(r => r.id === id)[0];
 
+    rec.endDate = '';
     rec.done = false;
     addToStorage(rec);
+
+    task.querySelector('.endDateContainer').innerHTML = '';
 
     records.splice(records.indexOf(rec), 1);
     localStorage.setItem('doneRecords', JSON.stringify(records));
@@ -50,8 +94,13 @@ function switchLists(event) {
     let records = getRecordsFromStorage('openRecords');
     let rec = records.filter(r => r.id === id)[0];
 
+    rec.endDate = moment();
     rec.done = true;
     addToStorage(rec);
+
+    task.querySelector('.endDateContainer').innerHTML = moment(
+      rec.endDate,
+    ).format('LT');
 
     records.splice(records.indexOf(rec), 1);
     localStorage.setItem('openRecords', JSON.stringify(records));
@@ -62,15 +111,44 @@ function switchLists(event) {
     .forEach(node => fromWhereToDelete.removeChild(node));
 }
 
+function deleteRecord(event) {
+  let btn = event.target;
+  let task = btn.closest('.taskContainer');
+  let id = task.querySelector('.idContainer').innerHTML;
+
+  let tasksChoosed = task.parentNode.id;
+  let storage = tasksChoosed === 'openTasks' ? 'openRecords' : 'doneRecords';
+
+  let records = getRecordsFromStorage(storage);
+  records = records.filter(r => r.id !== id);
+  localStorage.setItem(storage, JSON.stringify(records));
+
+  task.remove();
+}
+
 function endOfInput(event) {
   let inp = event.target;
   let keyCode = event.keyCode;
-  let span = inp.parentNode.parentNode.getElementsByTagName('span')[0];
+
+  let task = inp.parentNode.parentNode;
+  let span = task.getElementsByTagName('span')[0];
+  let idContainer = task.querySelector('.idContainer');
 
   if (!(escPressed(keyCode) || enterPressed(keyCode))) return;
 
   if (event.keyCode === 13) {
     span.innerHTML = event.target.value;
+    let tasksChoosed = task.closest('.baseContainer');
+    let storage =
+      tasksChoosed.id === 'openTasks' ? 'openRecords' : 'doneRecords';
+
+    let records = getRecordsFromStorage(storage);
+    records
+      .filter(r => r.id === idContainer.innerHTML)
+      .forEach(r => {
+        r.text = event.target.value;
+      });
+    localStorage.setItem(storage, JSON.stringify(records));
   }
 
   span.style.display = 'unset';
@@ -164,11 +242,26 @@ function drawRecord(record) {
 
   let timeIntervalsContainer = document.createElement('div');
   timeIntervalsContainer.classList.add('timeIntervalsContainer');
-  timeIntervalsContainer.innerHTML = moment(record.creationDate).format('LT');
+
+  let creationDateContainer = document.createElement('div');
+  creationDateContainer.classList.add('creationDateContainer');
+  creationDateContainer.innerHTML = moment(record.creationDate).format('LT');
+
+  // timeIntervalsContainer.innerHTML = moment(record.creationDate).format('LT');
+  timeIntervalsContainer.appendChild(creationDateContainer);
+
+  let endDateContainer = document.createElement('div');
+  endDateContainer.classList.add('endDateContainer');
+  if (record.endDate) {
+    endDateContainer.innerHTML = moment(record.endDate).format('LT');
+  }
+  timeIntervalsContainer.appendChild(endDateContainer);
+
   taskContainer.appendChild(timeIntervalsContainer);
 
   let removeBtnContainer = document.createElement('div');
   removeBtnContainer.classList.add('removeRecordContainer');
+  removeBtnContainer.addEventListener('click', deleteRecord);
   let removeBtn = document.createElement('button');
   removeBtn.classList.add('fa', 'fa-trash', 'removeRecord');
   removeBtnContainer.appendChild(removeBtn);
