@@ -14,7 +14,7 @@ body {
 
 /*  */
 
-.transparentInput {
+.transparent {
   border: 0;
   outline: 0;
   background: transparent;
@@ -111,4 +111,8 @@ body {
 .removeRecord {
   border: none;
   margin: 4px;
+}
+
+.clearListContainer {
+  text-align: right; 
 }

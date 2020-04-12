@@ -14,7 +14,7 @@
       </span>
 
       <div class='searchBoxClass'>
-        <input id='search' class='transparentInput' placeHolder='Search...' style='color: white;'></input>
+        <input id='search' class='transparent' placeHolder='Search...' style='color: white;'></input>
         <button id='magnifier' disabled='true'><i class="fa fa-search"></i></button>
         <hr color='white' style='margin: 0;'/>
       </div>
@@ -23,8 +23,8 @@
     <br/>
 
     <div class='addNewTaskContainer baseContainer'>
-      <input id='addTask' class='transparentInput' placeHolder='New task...'></input>
-      <button id='addBtn'>Add</button>
+      <input id='addTask' class='transparent' placeHolder='New task...' style='border-bottom:2px solid #E8E8E8;'></input>
+      <button id='addBtn' class='transparent' style='box-shadow: 0 0 10px 1px rgba(221, 221, 221, 1)'>Add</button>
     </div>
 
     <br/>
@@ -52,7 +52,7 @@
               <label class="checkbox-inline"><input type="checkbox"></label>
             </div>
             <div class="inputContainer">
-              <input id='recordInput' class='inputPosition transparentInput' placeHolder='Enter the record...'></input>
+              <input id='recordInput' class='inputPosition transparent' placeHolder='Enter the record...'></input>
             </div>
             <div class='timeIntervalsContainer'>
               lalala
@@ -63,6 +63,12 @@
             </div>
         </div> -->
     </div>
+
+    <div class='baseContainer clearListContainer'>
+      <a id='clearOpenList' class='clearList' href="#" style='color: black; text-decoration: underline;'>Clear "Open" list</a>
+    </div>
+
+    <br/>
 
     <div class='sortTasksContainer baseContainer'>
       <label class='taskGroupLabel'>Done</label>
@@ -79,7 +85,15 @@
       </div>
     </div>
 
+    <br/>
+
     <div class="baseContainer tasksContainer" id="doneTasks"></div>
+
+    <div class='baseContainer clearListContainer'>
+      <a id='clearDoneList' class='clearList' href="#" style='color: black; text-decoration: underline;'>Clear "Done" list</a>
+    </div>
+
+    <br/>
 </div>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>

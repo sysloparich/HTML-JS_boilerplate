@@ -5,6 +5,25 @@ let map = new Map();
 setup();
 restore();
 
+function resetSort(event) {
+  sortOpenButton.innerHTML = 'Sort by';
+}
+
+function clearRecords(event) {
+  let link = event.target.id;
+
+  let list = link === 'clearOpenList' ? openTasks : doneTasks;
+  removeChilden(list);
+
+  let storage = link === 'clearOpenList' ? 'openRecords' : 'doneRecords';
+  localStorage.setItem(storage, JSON.stringify([]));
+}
+
+function manipulateTrashBin(event) {
+  let display = event.type === 'mouseenter' ? null : 'none';
+  event.target.querySelector('.removeRecordContainer').style.display = display;
+}
+
 function removeChilden(element) {
   while (element.firstChild) {
     element.removeChild(element.firstChild);
@@ -24,6 +43,16 @@ function setup() {
     .forEach(drop => drop.addEventListener('click', sort));
 
   search.addEventListener('keyup', searchRecords);
+
+  document
+    .querySelectorAll('.clearList')
+    .forEach(clear => clear.addEventListener('click', clearRecords));
+
+  addBtn.addEventListener('click', createRecord);
+  addTask.addEventListener('keyup', createRecord);
+
+  addBtn.addEventListener('click', resetSort);
+  addTask.addEventListener('keyup', resetSort);
 }
 
 function getRecordsFromStorage(list) {
@@ -50,11 +79,6 @@ function enterPressed(code) {
 
 function searchRecords(event) {
   let text = event.target.value;
-  // if (!text) {
-  //   Array.from(doneTasks.children).forEach(task => (task.style.display = null));
-  //   Array.from(openTasks.children).forEach(task => (task.style.display = null));
-  //   return;
-  // }
 
   Array.from(openTasks.children).forEach(task =>
     manipulateTaskDisplay(text, task),
@@ -68,13 +92,15 @@ function manipulateTaskDisplay(text, task) {
   let span = task.querySelector('span');
   let txt = span.originalText;
 
-  if (txt.includes(text)) {
+  let tokens = txt.split(' ');
+
+  if (tokens.filter(token => token.startsWith(text)).length > 0) {
     if (task.style.display === 'none') task.style.display = null;
 
     span.innerHTML = txt
       .split(' ')
       .map(str => {
-        if (str.includes(text)) {
+        if (str.startsWith(text)) {
           let idx = str.indexOf(text);
           let substr = str.substring(idx, text.length);
           let boldPart = '<b>' + substr + '</b>';
@@ -179,6 +205,8 @@ function endOfInput(event) {
 
   if (!(escPressed(keyCode) || enterPressed(keyCode))) return;
 
+  if (!event.target.value) return;
+
   if (event.keyCode === 13) {
     span.innerHTML = event.target.value;
     span.originalText = event.target.value;
@@ -195,7 +223,8 @@ function endOfInput(event) {
     localStorage.setItem(storage, JSON.stringify(records));
   }
 
-  span.style.display = 'unset';
+  // span.style.display = 'unset';
+  span.style.display = null;
   inp.value = '';
   inp.style.display = 'none';
 }
@@ -204,13 +233,12 @@ function changeText(event) {
   let textContainer = event.currentTarget;
   let inputContainer = textContainer.parentNode;
   let inp = inputContainer.getElementsByTagName('input')[0];
-  inp.style.display = 'unset';
+  // inp.style.display = 'unset';
+  inp.style.display = null;
+  inp.focus();
   let span = inputContainer.getElementsByTagName('span')[0];
   span.style.display = 'none';
 }
-
-addBtn.addEventListener('click', createRecord);
-addTask.addEventListener('keyup', createRecord);
 
 function createRecord(event) {
   if (event.type === 'keyup' && event.keyCode !== 13) return;
@@ -247,6 +275,9 @@ function drawRecord(record) {
   let taskContainer = document.createElement('div');
   taskContainer.classList.add('taskContainer', 'shadowed');
 
+  taskContainer.addEventListener('mouseenter', manipulateTrashBin);
+  taskContainer.addEventListener('mouseleave', manipulateTrashBin);
+
   if (record.done) {
     doneTasks.appendChild(taskContainer);
   } else {
@@ -266,7 +297,7 @@ function drawRecord(record) {
   taskContainer.appendChild(checkboxContainer);
 
   let inp = document.createElement('input');
-  inp.classList.add('inputPosition', 'transparentInput');
+  inp.classList.add('inputPosition', 'transparent');
 
   let inputContainer = document.createElement('div');
   inputContainer.classList.add('inputContainer');
@@ -305,6 +336,7 @@ function drawRecord(record) {
   taskContainer.appendChild(timeIntervalsContainer);
 
   let removeBtnContainer = document.createElement('div');
+  removeBtnContainer.style.display = 'none';
   removeBtnContainer.classList.add('removeRecordContainer');
   removeBtnContainer.addEventListener('click', deleteRecord);
   let removeBtn = document.createElement('button');
