@@ -1,42 +1,111 @@
 import './style.css';
 import moment from 'moment';
 
-let map = new Map();
-setup();
-restore();
+function drawRecord(record) {
+  const layout = `
+    <div class='checkboxContainer'>
+      <label class='checkbox-inline'>
+        <input type='checkbox' class='checkboxClass'></input>
+      </label>
+    </div>
 
-function resetSort(event) {
-  sortOpenButton.innerHTML = 'Sort by';
+    <div class="inputContainer">
+      <input class='inputPosition transparent' style='display:none;'></input>
+      <div class='inputPosition textContainer'>
+        <span style='word-wrap: break-word;'>
+          ${record.text}
+        </span>
+      </div>
+    </div>
+
+    <div class='timeIntervalsContainer'>
+      <div class='creationDateContainer'>
+        ${moment(record.creationDate).format('LT')}
+      </div>
+      <div class='endDateContainer'>
+        ${record.endDate ? moment(record.endDate).format('LT') : ''}
+      </div>
+    </div>
+
+    <div class='removeRecordContainer' style='display:none;'>
+      <button class='fa fa-trash removeRecord'></button>
+    </div>
+
+    <div class='idContainer' style='display: none;'>${record.id}</div>
+`;
+
+  let newRec = document.createElement('div');
+  newRec.classList.add('taskContainer', 'shadowed');
+  newRec.style.display = record.display ? record.display : null;
+  newRec.innerHTML = layout;
+  newRec.querySelector('.checkboxClass').checked = record.done;
+
+  addEventListeners(newRec);
+
+  if (record.done) {
+    doneTasks.appendChild(newRec);
+  } else {
+    openTasks.appendChild(newRec);
+  }
+}
+
+function addEventListeners(newRec) {
+  newRec.addEventListener('mouseenter', manipulateTrashBin);
+  newRec.addEventListener('mouseleave', manipulateTrashBin);
+  newRec.querySelector('.checkboxClass').addEventListener('click', switchLists);
+  newRec
+    .querySelector('.inputPosition, .transparent')
+    .addEventListener('keyup', endOfInput);
+  newRec
+    .querySelector('.textContainer')
+    .addEventListener('dblclick', changeText);
+  newRec
+    .querySelector('.removeRecordContainer')
+    .addEventListener('click', deleteRecord);
+}
+
+function resetViewFor(element) {
+  while (element.firstChild) {
+    element.removeChild(element.firstChild);
+  }
+}
+
+function fullResetView() {
+  [openTasks, doneTasks].forEach(list => {
+    resetViewFor(list);
+  });
+}
+
+function drawAll(listOfLists) {
+  if (listOfLists) {
+    listOfLists.forEach(list => list.forEach(rec => drawRecord(rec)));
+  } else {
+    getRecordsFromStorage('openRecords').forEach(record => drawRecord(record));
+    getRecordsFromStorage('doneRecords').forEach(record => drawRecord(record));
+  }
+}
+
+function clearStorage(storage) {
+  localStorage.setItem(storage, JSON.stringify([]));
 }
 
 function clearRecords(event) {
   let link = event.target.id;
 
   let list = link === 'clearOpenList' ? openTasks : doneTasks;
-  removeChilden(list);
+  resetViewFor(list);
 
   let storage = link === 'clearOpenList' ? 'openRecords' : 'doneRecords';
-  localStorage.setItem(storage, JSON.stringify([]));
-}
-
-function manipulateTrashBin(event) {
-  let display = event.type === 'mouseenter' ? null : 'none';
-  event.target.querySelector('.removeRecordContainer').style.display = display;
-}
-
-function removeChilden(element) {
-  while (element.firstChild) {
-    element.removeChild(element.firstChild);
-  }
+  clearStorage(storage);
 }
 
 function setup() {
-  map.set('Date creation (Asc)', { asc: true, param: 'creationDate' });
-  map.set('Date creation (Desc)', { asc: false, param: 'creationDate' });
-  map.set('Due date (Asc)', { asc: true, param: 'endDate' });
-  map.set('Due date (Desc)', { asc: false, param: 'endDate' });
-  map.set('Text (Asc)', { asc: true, param: 'text' });
-  map.set('Text (Desc)', { asc: false, param: 'text' });
+  sortMap.set('Date creation (Asc)', { asc: true, param: 'creationDate' });
+  sortMap.set('Date creation (Desc)', { asc: false, param: 'creationDate' });
+  sortMap.set('Due date (Asc)', { asc: true, param: 'endDate' });
+  sortMap.set('Due date (Desc)', { asc: false, param: 'endDate' });
+  sortMap.set('Text (Asc)', { asc: true, param: 'text' });
+  sortMap.set('Text (Desc)', { asc: false, param: 'text' });
 
   document
     .querySelectorAll('.dropdown-menu')
@@ -53,6 +122,8 @@ function setup() {
 
   addBtn.addEventListener('click', resetSort);
   addTask.addEventListener('keyup', resetSort);
+
+  drawAll();
 }
 
 function getRecordsFromStorage(list) {
@@ -77,50 +148,61 @@ function enterPressed(code) {
   return code === 13;
 }
 
-function searchRecords(event) {
-  let text = event.target.value;
-
-  Array.from(openTasks.children).forEach(task =>
-    manipulateTaskDisplay(text, task),
-  );
-  Array.from(doneTasks.children).forEach(task =>
-    manipulateTaskDisplay(text, task),
+function textEntryFound(originalText, textPart) {
+  return (
+    originalText.split(' ').filter(token => token.startsWith(textPart)).length >
+    0
   );
 }
 
-function manipulateTaskDisplay(text, task) {
-  let span = task.querySelector('span');
-  let txt = span.originalText;
+function modifyTextStyle(originalText, textPart) {
+  return originalText
+    .split(' ')
+    .map(str => {
+      if (str.startsWith(textPart)) {
+        let idx = str.indexOf(textPart);
+        let substr = str.substring(idx, textPart.length);
+        let boldPart = '<b>' + substr + '</b>';
+        str = str.replace(substr, boldPart);
+      }
+      return str;
+    })
+    .join(' ');
+}
 
-  let tokens = txt.split(' ');
-
-  if (tokens.filter(token => token.startsWith(text)).length > 0) {
-    if (task.style.display === 'none') task.style.display = null;
-
-    span.innerHTML = txt
-      .split(' ')
-      .map(str => {
-        if (str.startsWith(text)) {
-          let idx = str.indexOf(text);
-          let substr = str.substring(idx, text.length);
-          let boldPart = '<b>' + substr + '</b>';
-          str = str.replace(substr, boldPart);
-        }
-        return str;
-      })
-      .join(' ');
+function buildModifiedRecord(record, partText) {
+  if (textEntryFound(record.text, partText)) {
+    let modifiedText = modifyTextStyle(record.text, partText);
+    record.text = modifiedText;
+    record.display = null;
   } else {
-    span.innerHTML = span.originalText;
-    task.style.display = 'none';
+    record.display = 'none';
   }
+
+  return record;
+}
+
+function searchRecords(event) {
+  fullResetView();
+
+  let partText = event.target.value;
+
+  let openRecs = getRecordsFromStorage('openRecords').map(task =>
+    buildModifiedRecord(task, partText),
+  );
+  let doneRecs = getRecordsFromStorage('doneRecords').map(task =>
+    buildModifiedRecord(task, partText),
+  );
+
+  drawAll([openRecs, doneRecs]);
 }
 
 function sort(event) {
   let option = event.target.innerHTML;
   let button = event.target.parentNode.parentNode.querySelector('.btn');
   button.innerHTML = option;
-  let sortParam = map.get(option).param;
-  let order = map.get(option).asc;
+  let sortParam = sortMap.get(option).param;
+  let order = sortMap.get(option).asc;
 
   let storage = button.id === 'sortOpenButton' ? 'openRecords' : 'doneRecords';
 
@@ -131,7 +213,7 @@ function sort(event) {
   localStorage.setItem(storage, JSON.stringify(records));
 
   let tasksContainer = button.id === 'sortOpenButton' ? openTasks : doneTasks;
-  removeChilden(tasksContainer);
+  resetViewFor(tasksContainer);
   getRecordsFromStorage(storage).forEach(record => drawRecord(record));
 }
 
@@ -266,87 +348,14 @@ function addToStorage(record) {
   localStorage.setItem(key, JSON.stringify(records));
 }
 
-function restore() {
-  getRecordsFromStorage('openRecords').forEach(record => drawRecord(record));
-  getRecordsFromStorage('doneRecords').forEach(record => drawRecord(record));
+function resetSort(event) {
+  sortOpenButton.innerHTML = 'Sort by';
 }
 
-function drawRecord(record) {
-  let taskContainer = document.createElement('div');
-  taskContainer.classList.add('taskContainer', 'shadowed');
-
-  taskContainer.addEventListener('mouseenter', manipulateTrashBin);
-  taskContainer.addEventListener('mouseleave', manipulateTrashBin);
-
-  if (record.done) {
-    doneTasks.appendChild(taskContainer);
-  } else {
-    openTasks.appendChild(taskContainer);
-  }
-
-  let checkboxContainer = document.createElement('div');
-  checkboxContainer.classList.add('checkboxContainer');
-  let checkboxLabel = document.createElement('label');
-  checkboxLabel.classList.add('checkbox-inline');
-  let checkbox = document.createElement('input');
-  checkbox.addEventListener('click', switchLists);
-  checkbox.type = 'checkbox';
-  checkbox.checked = record.done;
-  checkboxLabel.appendChild(checkbox);
-  checkboxContainer.appendChild(checkboxLabel);
-  taskContainer.appendChild(checkboxContainer);
-
-  let inp = document.createElement('input');
-  inp.classList.add('inputPosition', 'transparent');
-
-  let inputContainer = document.createElement('div');
-  inputContainer.classList.add('inputContainer');
-  inp.addEventListener('keyup', endOfInput);
-  inputContainer.appendChild(inp);
-  taskContainer.appendChild(inputContainer);
-  inp.style.display = 'none';
-
-  let textContainer = document.createElement('div');
-  let span = document.createElement('span');
-  textContainer.classList.add('inputPosition');
-  span.style.setProperty('word-wrap', 'break-word');
-  span.innerHTML = record.text;
-  span.originalText = record.text;
-  textContainer.appendChild(span);
-  textContainer.addEventListener('dblclick', changeText);
-  inputContainer.appendChild(textContainer);
-
-  let timeIntervalsContainer = document.createElement('div');
-  timeIntervalsContainer.classList.add('timeIntervalsContainer');
-
-  let creationDateContainer = document.createElement('div');
-  creationDateContainer.classList.add('creationDateContainer');
-  creationDateContainer.innerHTML = moment(record.creationDate).format('LT');
-
-  // timeIntervalsContainer.innerHTML = moment(record.creationDate).format('LT');
-  timeIntervalsContainer.appendChild(creationDateContainer);
-
-  let endDateContainer = document.createElement('div');
-  endDateContainer.classList.add('endDateContainer');
-  if (record.endDate) {
-    endDateContainer.innerHTML = moment(record.endDate).format('LT');
-  }
-  timeIntervalsContainer.appendChild(endDateContainer);
-
-  taskContainer.appendChild(timeIntervalsContainer);
-
-  let removeBtnContainer = document.createElement('div');
-  removeBtnContainer.style.display = 'none';
-  removeBtnContainer.classList.add('removeRecordContainer');
-  removeBtnContainer.addEventListener('click', deleteRecord);
-  let removeBtn = document.createElement('button');
-  removeBtn.classList.add('fa', 'fa-trash', 'removeRecord');
-  removeBtnContainer.appendChild(removeBtn);
-  taskContainer.appendChild(removeBtnContainer);
-
-  let idContainer = document.createElement('div');
-  idContainer.classList.add('idContainer');
-  idContainer.style.display = 'none';
-  idContainer.innerHTML = record.id;
-  taskContainer.appendChild(idContainer);
+function manipulateTrashBin(event) {
+  let display = event.type === 'mouseenter' ? null : 'none';
+  event.target.querySelector('.removeRecordContainer').style.display = display;
 }
+
+let sortMap = new Map();
+setup();
