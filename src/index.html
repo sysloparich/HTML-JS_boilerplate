@@ -34,8 +34,8 @@
       <div class="dropdown dropright">
         <button class="btn dropdown-toggle " type="button" id="sortOpenButton" data-toggle="dropdown" style='border-bottom-color: #E8E8E8; border-bottom-width: 2px;'>
           Sort by
-        </button aria-labelledby="sortOpenButton">
-          <div class="dropdown-menu">
+        </button class="dropdown-menu" aria-labelledby="sortOpenButton">
+          <div class="dropdown-menu" id='openMenuDropdown'>
             <a class="dropdown-item" href="#">Date creation (Asc)</a>
             <a class="dropdown-item" href="#">Date creation (Desc)</a>
             <a class="dropdown-item" href="#">Text (Asc)</a>
@@ -46,35 +46,7 @@
 
     <br/>
 
-    <div class="baseContainer tasksContainer" id="openTasks">
-          <!-- <div class="taskContainer shadowed">
-            <div class='checkboxContainer'>
-              <label class="checkbox-inline"><input type="checkbox"></label>
-            </div>
-            <div class="inputContainer">
-              <input id='recordInput' class='inputPosition transparent' placeHolder='Enter the record...'></input>
-            </div>
-            <div class='timeIntervalsContainer'>
-              lalala
-              lalala
-            </div>
-            <div class='removeRecordContainer'>
-              <button class='fa fa-trash removeRecord'></button>
-            </div>
-        </div> -->
-    </div>
-
-    <!-- let checkboxContainer = document.createElement('div');
-    checkboxContainer.classList.add('checkboxContainer');
-    let checkboxLabel = document.createElement('label');
-    checkboxLabel.classList.add('checkbox-inline');
-    let checkbox = document.createElement('input');
-    checkbox.addEventListener('click', switchLists);
-    checkbox.type = 'checkbox';
-    checkbox.checked = record.done;
-    checkboxLabel.appendChild(checkbox);
-    checkboxContainer.appendChild(checkboxLabel);
-    taskContainer.appendChild(checkboxContainer); -->
+    <div class="baseContainer tasksContainer" id="openTasks"></div>
 
     <div class='baseContainer clearListContainer'>
       <a id='clearOpenList' class='clearList' href="#" style='color: black; text-decoration: underline;'>Clear "Open" list</a>
@@ -88,7 +60,7 @@
         <button class="btn dropdown-toggle " type="button" id="sortDoneButton" data-toggle="dropdown" style='border-bottom-color: #E8E8E8; border-bottom-width: 2px;'>
           Sort by
         </button>
-        <div class="dropdown-menu" aria-labelledby="sortDoneButton">
+        <div class="dropdown-menu" aria-labelledby="sortDoneButton" id='doneMenuDropdown'>
           <a class="dropdown-item" href="#">Due date (Asc)</a>
           <a class="dropdown-item" href="#">Due date (Desc)</a>
           <a class="dropdown-item" href="#">Text (Asc)</a>

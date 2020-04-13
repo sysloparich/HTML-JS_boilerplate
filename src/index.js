@@ -107,9 +107,16 @@ function setup() {
   sortMap.set('Text (Asc)', { asc: true, param: 'text' });
   sortMap.set('Text (Desc)', { asc: false, param: 'text' });
 
-  document
-    .querySelectorAll('.dropdown-menu')
-    .forEach(drop => drop.addEventListener('click', sort));
+  dropdownToStorageMap.set('openMenuDropdown', 'openRecords');
+  dropdownToStorageMap.set('doneMenuDropdown', 'doneRecords');
+
+  dropdownToTaskContainerMap.set('openMenuDropdown', 'openTasks');
+  dropdownToTaskContainerMap.set('doneMenuDropdown', 'doneTasks');
+
+  document.querySelectorAll('.dropdown-menu').forEach(drop => {
+    drop.addEventListener('click', sort);
+    drop.addEventListener('click', modifySortLabel);
+  });
 
   search.addEventListener('keyup', searchRecords);
 
@@ -197,69 +204,79 @@ function searchRecords(event) {
   drawAll([openRecs, doneRecs]);
 }
 
-function sort(event) {
-  let option = event.target.innerHTML;
-  let button = event.target.parentNode.parentNode.querySelector('.btn');
-  button.innerHTML = option;
-  let sortParam = sortMap.get(option).param;
-  let order = sortMap.get(option).asc;
-
-  let storage = button.id === 'sortOpenButton' ? 'openRecords' : 'doneRecords';
-
+function sortForStorage(storage, sortParam) {
   let records = getRecordsFromStorage(storage);
   records.sort((rec1, rec2) =>
-    rec1[sortParam] > rec2[sortParam] && order ? 1 : -1,
+    rec1[sortParam.field] > rec2[sortParam.field] && sortParam.order ? 1 : -1,
   );
   localStorage.setItem(storage, JSON.stringify(records));
 
-  let tasksContainer = button.id === 'sortOpenButton' ? openTasks : doneTasks;
-  resetViewFor(tasksContainer);
-  getRecordsFromStorage(storage).forEach(record => drawRecord(record));
+  return records;
+}
+
+function sort(event) {
+  let option = sortMap.get(event.target.innerHTML);
+  let dropdownId = event.currentTarget.id;
+
+  let records = sortForStorage(dropdownToStorageMap.get(dropdownId), {
+    field: option.param,
+    order: option.asc,
+  });
+
+  let container = document.querySelector(
+    '#' + dropdownToTaskContainerMap.get(dropdownId),
+  );
+
+  resetViewFor(container);
+  drawAll([records]);
+}
+
+function moveToAnotherListInternally(params, storages) {
+  let fromWhereToDelete = getRecordsFromStorage(storages.from);
+  let whereToAdd = getRecordsFromStorage(storages.to);
+
+  let record = fromWhereToDelete.filter(rec => rec.id === params.id)[0];
+  record.done = !record.done;
+  record.endDate = params.endDate;
+
+  whereToAdd.push(record);
+  fromWhereToDelete.splice(fromWhereToDelete.indexOf(record), 1);
+
+  localStorage.setItem(storages.from, JSON.stringify(fromWhereToDelete));
+  localStorage.setItem(storages.to, JSON.stringify(whereToAdd));
+}
+
+function moveToAnotherList(params) {
+  if (params.done) {
+    moveToAnotherListInternally(
+      { id: params.id, endDate: moment() },
+      {
+        from: 'openRecords',
+        to: 'doneRecords',
+      },
+    );
+  } else {
+    moveToAnotherListInternally(
+      { id: params.id, endDate: '' },
+      {
+        from: 'doneRecords',
+        to: 'openRecords',
+      },
+    );
+  }
 }
 
 function switchLists(event) {
+  fullResetView();
+
   let checkbox = event.target;
+  let task = checkbox.closest('.taskContainer');
+  let taskDone = task.querySelector('.checkboxClass').checked;
+  let taskId = task.querySelector('.idContainer').innerHTML;
 
-  let task = checkbox.parentNode.parentNode.parentNode;
-  let fromWhereToDelete;
+  moveToAnotherList({ id: taskId, done: taskDone });
 
-  let id = task.querySelector('.idContainer').innerHTML;
-
-  if (!checkbox.checked) {
-    openTasks.appendChild(task);
-    fromWhereToDelete = doneTasks;
-    let records = getRecordsFromStorage('doneRecords');
-    let rec = records.filter(r => r.id === id)[0];
-
-    rec.endDate = '';
-    rec.done = false;
-    addToStorage(rec);
-
-    task.querySelector('.endDateContainer').innerHTML = '';
-
-    records.splice(records.indexOf(rec), 1);
-    localStorage.setItem('doneRecords', JSON.stringify(records));
-  } else {
-    doneTasks.appendChild(task);
-    fromWhereToDelete = openTasks;
-    let records = getRecordsFromStorage('openRecords');
-    let rec = records.filter(r => r.id === id)[0];
-
-    rec.endDate = moment();
-    rec.done = true;
-    addToStorage(rec);
-
-    task.querySelector('.endDateContainer').innerHTML = moment(
-      rec.endDate,
-    ).format('LT');
-
-    records.splice(records.indexOf(rec), 1);
-    localStorage.setItem('openRecords', JSON.stringify(records));
-  }
-
-  Array.from(fromWhereToDelete)
-    .filter(node => node.isEqualNode(task))
-    .forEach(node => fromWhereToDelete.removeChild(node));
+  drawAll();
 }
 
 function deleteRecord(event) {
@@ -335,7 +352,6 @@ function createRecord(event) {
     creationDate: moment(),
   });
   drawRecord(newRecord);
-
   addToStorage(newRecord);
 }
 
@@ -357,5 +373,13 @@ function manipulateTrashBin(event) {
   event.target.querySelector('.removeRecordContainer').style.display = display;
 }
 
+function modifySortLabel(event) {
+  let option = event.target.innerHTML;
+  let button = event.currentTarget.parentNode.querySelector('.btn');
+  button.innerHTML = option;
+}
+
 let sortMap = new Map();
+let dropdownToStorageMap = new Map();
+let dropdownToTaskContainerMap = new Map();
 setup();
