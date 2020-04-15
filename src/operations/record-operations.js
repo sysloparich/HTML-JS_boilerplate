@@ -141,19 +141,23 @@ export function endOfInput(event) {
   let span = task.getElementsByTagName('span')[0];
 
   let keyCode = event.keyCode;
-  if (!escPressed(keyCode)) {
-    if (!enterPressed(keyCode) || !inp.value) return;
 
-    let idContainer = task.querySelector('.idContainer');
-
-    if (enterPressed(keyCode)) {
-      span.innerHTML = inp.value;
-      span.originalText = inp.value;
-      let tasksChoosed = task.closest('.baseContainer');
-      let storage = taskContainerToStorageMap.get(tasksChoosed.id);
-      modifyRecordContent(storage, idContainer.dataset.id, inp.value);
-    }
+  if (escPressed(keyCode)) {
+    spanOverlapInput(span, inp);
+    return;
   }
 
-  spanOverlapInput(span, inp);
+  if (!inp.value) return;
+
+  if (enterPressed(keyCode)) {
+    span.innerHTML = inp.value;
+    span.originalText = inp.value;
+    let tasksChoosed = task.closest('.baseContainer');
+    modifyRecordContent(
+      taskContainerToStorageMap.get(tasksChoosed.id),
+      task.querySelector('.idContainer').dataset.id,
+      inp.value,
+    );
+    spanOverlapInput(span, inp);
+  }
 }

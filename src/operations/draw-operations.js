@@ -8,6 +8,8 @@ import { switchLists, endOfInput, deleteRecord } from './record-operations.js';
 import moment from 'moment';
 
 export function drawRecord(record) {
+  if (record.display == 'none') return;
+
   const layout = `
       <div class='checkboxContainer'>
         <label class='checkbox-inline'>
@@ -43,7 +45,6 @@ export function drawRecord(record) {
   `;
   let newRec = document.createElement('div');
   newRec.classList.add('taskContainer', 'shadowed');
-  newRec.style.display = record.display ? record.display : null;
   newRec.innerHTML = layout;
   newRec.querySelector('.checkboxClass').checked = record.done;
 
@@ -112,12 +113,12 @@ export function modifySortLabel(event) {
 }
 
 export function changeText(event) {
-  let textContainer = event.currentTarget;
-  let inputContainer = textContainer.parentNode;
+  let inputContainer = event.currentTarget.parentNode;
   let inp = inputContainer.getElementsByTagName('input')[0];
-  // inp.style.display = 'unset';
+
   inp.style.display = null;
   inp.focus();
+
   let span = inputContainer.getElementsByTagName('span')[0];
   span.style.display = 'none';
 }
